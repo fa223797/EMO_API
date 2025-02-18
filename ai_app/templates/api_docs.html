@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI API文档</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .method {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .post { background-color: #49cc90; }
+        .get { background-color: #61affe; }
+        pre {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        
+        /* 添加搜索相关样式 */
+        .search-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        /* 添加模型分类样式 */
+        .model-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        
+        .model-title {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* 添加导航样式 */
+        .nav-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-item {
+            margin: 5px 0;
+        }
+        
+        .nav-link {
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        
+        .nav-link:hover {
+            color: #3498db;
+        }
+
+        .model-category {
+            color: #2c3e50;
+            margin-top: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .model-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .model-list li {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .model-list code {
+            background: #e9ecef;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+        
+        .tag.free {
+            background: #28a745;
+            color: white;
+        }
+        
+        .model-list p {
+            margin: 5px 0 0 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI API文档</h1>
+        
+        <!-- 搜索框 -->
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="搜索API...">
+        </div>
+        
+        <!-- 导航栏 -->
+        <div class="nav-container">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="#glm" class="nav-link">智谱GLM系列</a></li>
+                <li class="nav-item"><a href="#qwen" class="nav-link">通义千问系列</a></li>
+                <li class="nav-item"><a href="#coze" class="nav-link">COZE系列</a></li>
+            </ul>
+        </div>
+
+        <!-- 统一接口说明 -->
+        <div class="model-section">
+            <h2 class="model-title" id="ai-all">统一接口 AI_ALL</h2>
+            <div class="endpoint">
+                <h3>通用AI接口</h3>
+                <span class="method post">POST</span>
+                <code>/ai-all/</code>
+                <p>支持所有模型的统一接口，通过model参数指定要使用的模型</p>
+
+                <h4>支持模型及功能</h4>
+                <div class="model-category">
+                    <h5>智谱GLM系列</h5>
+                    <ul>
+                        <li><code>glm-4-plus</code> - 增强版通用模型</li>
+                        <li><code>glm-4-air</code> - 轻量级快速响应模型</li>
+                        <li><code>glm-4-long</code> - 长文本处理专用</li>
+                        <li><code>glm-4-flash</code> - 极速响应版本</li>
+                        <li><code>cogvideox</code> - 视频生成模型</li>
+                    </ul>
+
+                    <h5>通义千问系列</h5>
+                    <ul>
+                        <li><code>qwen2.5-1.5b-instruct</code> <span class="tag free">免费</span> - 基础对话模型</li>
+                        <li><code>qwen-1.8b-longcontext-chat</code> <span class="tag free">免费</span> - 长文本理解</li>
+                        <li><code>qwen2-vl-2b-instruct</code> <span class="tag free">免费</span> - 多模态视觉理解</li>
+                        <li><code>qwen2.5-math-1.5b-instruct</code> - 数学解题专用</li>
+                        <li><code>qwen2.5-coder-3b-instruct</code> - 代码生成模型</li>
+                        <li><code>wanx-ast</code> - 图文混合创作模型</li>
+                    </ul>
+
+                    <h5>Deepseek系列</h5>
+                    <ul>
+                        <li><code>deepseek-r1-distill-qwen-1.5b</code> <span class="tag free">免费</span> - Qwen蒸馏模型</li>
+                        <li><code>deepseek-r1-distill-llama-8b</code> <span class="tag free">免费</span> - LLaMA 8B蒸馏</li>
+                        <li><code>deepseek-r1-distill-llama-70b</code> <span class="tag free">免费</span> - LLaMA 70B蒸馏</li>
+                    </ul>
+
+                    <h5>特色功能模型</h5>
+                    <ul>
+                        <li><code>facechain-facedetect</code> - 人物图像检测</li>
+                        <li><code>video-style-transform</code> - 视频风格迁移</li>
+                        <li><code>gte-rerank</code> - 文本相关性排序</li>
+                    </ul>
+                </div>
+
+                <h4>使用建议</h4>
+                <ul>
+                    <li>标注<span class="tag free">免费</span>的模型可无限制使用</li>
+                    <li>对话场景建议使用<code>glm-4-flash</code>或<code>qwen2.5-1.5b-instruct</code></li>
+                    <li>长文本处理推荐<code>glm-4-long</code>或<code>qwen-1.8b-longcontext-chat</code></li>
+                    <li>多模态任务请使用<code>qwen2-vl-2b-instruct</code>或<code>wanx-ast</code></li>
+                </ul>
+
+                <h4>请求参数</h4>
+                <table>
+                    <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必选</th>
+                        <th>描述</th>
+                    </tr>
+                    <tr>
+                        <td>model</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>模型名称（支持glm/qwen/coze全系列）</td>
+                    </tr>
+                    <tr>
+                        <td>text</td>
+                        <td>string</td>
+                        <td>条件</td>
+                        <td>文本输入内容</td>
+                    </tr>
+                    <tr>
+                        <td>file</td>
+                        <td>file</td>
+                        <td>条件</td>
+                        <td>上传的文件（图片/音频/视频）</td>
+                    </tr>
+                    <tr>
+                        <td>url</td>
+                        <td>string</td>
+                        <td>条件</td>
+                        <td>媒体文件URL</td>
+                    </tr>
+                    <tr>
+                        <td>voice</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>语音合成音色（默认Cherry）</td>
+                    </tr>
+                </table>
+
+                <h4>功能覆盖说明</h4>
+                <ul>
+                    <li>支持所有GLM系列模型（glm-4/glm-4v/cogvideox等）</li>
+                    <li>支持Qwen全系列模型（qwen-vl/qwen-omni等）</li>
+                    <li>支持Coze对话模型</li>
+                    <li>自动维护各模型的对话历史</li>
+                    <li>支持流式响应和文件上传</li>
+                </ul>
+
+                <h4>请求示例 - 图文对话</h4>
+                <pre><code>POST /ai-all/
+Content-Type: multipart/form-data
+
+model=qwen-vl
+text=描述这张图片
+file=@image.jpg</code></pre>
+
+                <h4>请求示例 - 视频生成</h4>
+                <pre><code>POST /ai-all/
+Content-Type: application/x-www-form-urlencoded
+
+model=cogvideox-flash
+text=生成一个日落的视频
+url=https://example.com/sky.jpg</code></pre>
+
+                <h4>响应特征</h4>
+                <pre><code>text:[文本内容]
+audio:[base64音频数据]
+video_url:[视频URL]
+status:[任务状态]</code></pre>
+            </div>
+        </div>
+
+        <!-- 智谱GLM系列 -->
+        <div id="glm" class="model-section">
+            <h2 class="model-title">智谱GLM系列</h2>
+            
+            <div class="endpoint">
+                <h3>GLM-4 对话接口</h3>
+                <span class="method post">POST</span>
+                <code>/GLM-4/</code>
+                <p>基于GLM-4模型的对话接口，支持知识库检索。</p>
+                
+                <h4>支持的模型</h4>
+                <ul>
+                    <li>glm-4</li>
+                    <li>glm-4-flash（默认）</li>
+                </ul>
+                
+                <h4>请求参数</h4>
+                <table>
+                    <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必选</th>
+                        <th>描述</th>
+                    </tr>
+                    <tr>
+                        <td>question</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>用户的问题内容</td>
+                    </tr>
+                    <tr>
+                        <td>model</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>模型名称，默认为"glm-4-flash"</td>
+                    </tr>
+                </table>
+
+                <h4>请求示例</h4>
+                <pre><code>{
+    "question": "我很抑郁，我该怎么办？",
+    "model": "glm-4-flash"
+}</code></pre>
+
+                <h4>响应示例</h4>
+                <pre><code>{
+    "choices": [{
+        "message": {
+            "content": "你好！我是智谱AI助手...",
+            "role": "assistant"
+        }
+    }],
+    "created": 1739420477,
+    "usage": {
+        "completion_tokens": 302,
+        "prompt_tokens": 11,
+        "total_tokens": 313
+    }
+}</code></pre>
+            </div>
+            
+            <div class="endpoint">
+                <h3>GLM-4V 多模态识别接口</h3>
+                <span class="method post">POST</span>
+                <code>/GLM-4V/</code>
+                <p>支持图片和视频的多模态理解对话接口。</p>
+                
+                <h4>支持的模型</h4>
+                <ul>
+                    <li>glm-4v-flash（默认）</li>
+                    <li>glm-4v</li>
+                    <li>glm-4v-plus</li>
+                    <li>glm-4v-plus-0111</li>
+                </ul>
+
+                <h4>请求参数</h4>
+                <table>
+                    <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必选</th>
+                        <th>描述</th>
+                    </tr>
+                    <tr>
+                        <td>model</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>模型名称</td>
+                    </tr>
+                    <tr>
+                        <td>messages</td>
+                        <td>array</td>
+                        <td>是</td>
+                        <td>消息数组，包含role和content</td>
+                    </tr>
+                    <tr>
+                        <td>messages[].content[].type</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>内容类型：text/image_url/video_url</td>
+                    </tr>
+                    <tr>
+                        <td>messages[].content[].text</td>
+                        <td>string</td>
+                        <td>条件</td>
+                        <td>当type为text时的文本内容</td>
+                    </tr>
+                    <tr>
+                        <td>messages[].content[].image_url.url</td>
+                        <td>string</td>
+                        <td>条件</td>
+                        <td>图片URL或base64（支持jpg/png）</td>
+                    </tr>
+                    <tr>
+                        <td>messages[].content[].video_url.url</td>
+                        <td>string</td>
+                        <td>条件</td>
+                        <td>视频URL或base64（支持mp4）</td>
+                    </tr>
+                </table>
+
+                <h4>请求示例</h4>
+                <pre><code>{
+    "model": "glm-4v-flash",
+    "messages": [{
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                "text": "描述这张图片"
+            },
+            {
+                "type": "image_url",
+                "image_url": {
+                    "url": "http://example.com/image.jpg"
+                }
+            }
+        ]
+    }]
+}</code></pre>
+            </div>
+            
+            <div class="endpoint">
+                <h3>GLM-CogView 文生图接口</h3>
+                <span class="method post">POST</span>
+                <code>/GLM-Cog/</code>
+                <p>基于文本描述生成图像的接口。</p>
+
+                <h4>支持的模型</h4>
+                <ul>
+                    <li>cogview-3（默认）</li>
+                    <li>cogview-3-flash</li>
+                    <li>cogview-4</li>
+                </ul>
+                
+                <h4>请求参数</h4>
+                <table>
+                    <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必选</th>
+                        <th>描述</th>
+                    </tr>
+                    <tr>
+                        <td>model</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>模型名称</td>
+                    </tr>
+                    <tr>
+                        <td>prompt</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>图像描述文本</td>
+                    </tr>
+                    <tr>
+                        <td>size</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>图像尺寸，默认"1024x1024"</td>
+                    </tr>
+                    <tr>
+                        <td>user_id</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>用户标识</td>
+                    </tr>
+                </table>
+
+                <h4>请求示例</h4>
+                <pre><code>{
+    "model": "cogview-3-flash",
+    "prompt": "一只可爱的小猫咪",
+    "size": "1024x1024"
+}</code></pre>
+            </div>
+            
+            <div class="endpoint">
+                <h3>GLM-4-Voice 语音对话接口</h3>
+                <span class="method post">POST</span>
+                <code>/GLM-4-Voice/</code>
+                <p>支持语音输入输出的对话接口。</p>
+                
+                <h4>支持的模型</h4>
+                <ul>
+                    <li>glm-4-voice（默认）</li>
+                </ul>
+                
+                <h4>请求参数</h4>
+                <table>
+                    <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必选</th>
+                        <th>描述</th>
+                    </tr>
+                    <tr>
+                        <td>messages</td>
+                        <td>array</td>
+                        <td>是</td>
+                        <td>消息数组，包含对话信息</td>
+                    </tr>
+                    <tr>
+                        <td>messages[].role</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>消息角色：user/system/assistant</td>
+                    </tr>
+                    <tr>
+                        <td>messages[].content[].type</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>内容类型：text/input_audio</td>
+                    </tr>
+                    <tr>
+                        <td>model</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>模型名称，默认"glm-4-voice"</td>
+                    </tr>
+                    <tr>
+                        <td>request_id</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>请求唯一标识</td>
+                    </tr>
+                    <tr>
+                        <td>do_sample</td>
+                        <td>boolean</td>
+                        <td>否</td>
+                        <td>是否启用采样策略，默认true</td>
+                    </tr>
+                    <tr>
+                        <td>stream</td>
+                        <td>boolean</td>
+                        <td>否</td>
+                        <td>是否流式返回，默认false</td>
+                    </tr>
+                    <tr>
+                        <td>temperature</td>
+                        <td>float</td>
+                        <td>否</td>
+                        <td>采样温度[0.0-1.0]，默认0.8，值越大输出越随机</td>
+                    </tr>
+                    <tr>
+                        <td>top_p</td>
+                        <td>float</td>
+                        <td>否</td>
+                        <td>核采样阈值[0.0-1.0]，默认0.6</td>
+                    </tr>
+                    <tr>
+                        <td>max_tokens</td>
+                        <td>integer</td>
+                        <td>否</td>
+                        <td>最大输出tokens，默认1024，最大4095</td>
+                    </tr>
+                    <tr>
+                        <td>stop</td>
+                        <td>array</td>
+                        <td>否</td>
+                        <td>停止词列表，如["stop_word1"]</td>
+                    </tr>
+                    <tr>
+                        <td>user_id</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>用户唯一ID，6-128字符</td>
+                    </tr>
+                </table>
+
+                <h4>请求示例</h4>
+                <pre><code>{
+    "model": "glm-4-voice",
+    "messages": [{
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                "text": "给我讲个冷笑话"
+            },
+            {
+                "type": "input_audio",
+                "input_audio": {
+                    "data": "base64编码的音频数据",
+                    "format": "wav"
+                }
+            }
+        ]
+    }],
+    "temperature": 0.8,
+    "top_p": 0.6,
+    "max_tokens": 1024,
+    "do_sample": true,
+    "stream": false
+}</code></pre>
+
+                <h4>响应示例</h4>
+                <pre><code>{
+    "id": "7986526437254553600",
+    "created": 1708937548,
+    "model": "glm-4-voice",
+    "choices": [{
+        "index": 0,
+        "finish_reason": "stop",
+        "message": {
+            "role": "assistant",
+            "content": "好的，我来讲个冷笑话...",
+            "audio": {
+                "id": "audio_7986526437254553600",
+                "data": "base64编码的音频数据",
+                "expires_at": "2024-02-26T12:32:28Z"
+            }
+        }
+    }],
+    "usage": {
+        "prompt_tokens": 15,
+        "completion_tokens": 50,
+        "total_tokens": 65
+    }
+}</code></pre>
+
+                <h4>注意事项</h4>
+                <ul>
+                    <li>音频输入最长不超过10分钟</li>
+                    <li>音频计算规则：1秒音频=12.5 Tokens（向上取整）</li>
+                    <li>支持wav和mp3格式的音频输入</li>
+                    <li>temperature和top_p参数建议只调整其中一个</li>
+                    <li>返回的音频内容有过期时间，需要注意expires_at字段</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 通义千问系列 -->
+        <div id="qwen" class="model-section">
+            <h2 class="model-title">通义千问系列</h2>
+            
+            <h3 class="model-category">大语言模型</h3>
+            <ul class="model-list">
+                <li>
+                    <code>qwen2.5-1.5b-instruct</code>
+                    <span class="tag free">免费</span>
+                    <p>通用对话模型，适合日常对话和知识问答</p>
+                </li>
+                <li>
+                    <code>qwen-1.8b-longcontext-chat</code>
+                    <span class="tag free">免费</span>
+                    <p>长文本对话模型，支持更长的上下文</p>
+                </li>
+                <li>
+                    <code>qwen2.5-coder-3b-instruct</code>
+                    <span class="tag free">免费</span>
+                    <p>代码生成模型，支持1.5B和0.5B两种规格</p>
+                </li>
+                <li>
+                    <code>qwen2.5-math-1.5b-instruct</code>
+                    <span class="tag free">免费</span>
+                    <p>数学解题专用模型</p>
+                </li>
+            </ul>
+
+            <h3 class="model-category">视觉模型</h3>
+            <ul class="model-list">
+                <li>
+                    <code>qwen2-vl-2b-instruct</code>
+                    <span class="tag free">免费</span>
+                    <p>视觉语言模型，支持图像理解和描述</p>
+                </li>
+                <li>
+                    <code>wanx-ast</code>
+                    <span class="tag free">免费</span>
+                    <p>图像文字添加模型</p>
+                </li>
+                <li>
+                    <code>facechain-facedetect</code>
+                    <span class="tag free">免费</span>
+                    <p>人物图像检测模型</p>
+                </li>
+                <li>
+                    <code>video-style-transform</code>
+                    <span class="tag free">免费</span>
+                    <p>视频风格重绘模型</p>
+                </li>
+            </ul>
+
+            <h3 class="model-category">Deepseek系列</h3>
+            <ul class="model-list">
+                <li>
+                    <code>deepseek-r1-distill-qwen-1.5b</code>
+                    <span class="tag free">免费</span>
+                    <p>基于Qwen的Deepseek蒸馏模型</p>
+                </li>
+                <li>
+                    <code>deepseek-r1-distill-llama-8b</code>
+                    <span class="tag free">免费</span>
+                    <p>基于LLaMA 8B的Deepseek蒸馏模型</p>
+                </li>
+                <li>
+                    <code>deepseek-r1-distill-llama-70b</code>
+                    <span class="tag free">免费</span>
+                    <p>基于LLaMA 70B的Deepseek蒸馏模型</p>
+                </li>
+            </ul>
+
+            <h3 class="model-category">特殊功能模型</h3>
+            <ul class="model-list">
+                <li>
+                    <code>gte-rerank</code>
+                    <span class="tag free">免费</span>
+                    <p>文本排序模型，用于文本相关性排序</p>
+                </li>
+            </ul>
+
+            <div class="endpoint">
+                <h3>Qwen Chat 对话接口</h3>
+                <span class="method post">POST</span>
+                <code>/QwenChat/</code>
+                <p>基于通义千问的单轮对话接口。</p>
+
+                <h3>配置信息</h3>
+                <table>
+                    <tr>
+                        <th>配置项</th>
+                        <th>位置</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>Qwen_APIKEY</td>
+                        <td>ai_app/views.py</td>
+                        <td>通义千问API密钥</td>
+                    </tr>
+                    <tr>
+                        <td>QwenChat类</td>
+                        <td>ai_app/views.py</td>
+                        <td>处理对话请求的类</td>
+                    </tr>
+                </table>
+                
+                <h3>请求参数</h3>
+                <table>
+                    <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必选</th>
+                        <th>描述</th>
+                    </tr>
+                    <tr>
+                        <td>content</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>用户输入的内容</td>
+                    </tr>
+                    <tr>
+                        <td>system_role</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>系统角色设定，默认为"你是一名专业的心里医生"</td>
+                    </tr>
+                    <tr>
+                        <td>model</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>模型名称，默认为"qwen2.5-1.5b-instruct"</td>
+                    </tr>
+                </table>
+
+                <h3>请求示例</h3>
+                <pre><code>POST /QwenChat/
+Content-Type: application/json
+
+{
+    "content": "我最近感觉很焦虑",
+    "system_role": "你是一名专业的心理医生",
+    "model": "qwen2.5-1.5b-instruct"
+}</code></pre>
+
+                <h3>响应示例</h3>
+                <pre><code>HTTP/1.1 200 OK
+Content-Type: text/event-stream
+
+我理解你现在的感受。焦虑是一种常见的情绪反应...（流式响应）</code></pre>
+            </div>
+            
+            <div class="endpoint">
+                <h3>Qwen 长文本对话接口</h3>
+                <span class="method post">POST</span>
+                <code>/QwenChatFile/</code>
+                
+                <h3>配置信息</h3>
+                <table>
+                    <tr>
+                        <th>配置项</th>
+                        <th>位置</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>Qwen_APIKEY</td>
+                        <td>ai_app/views.py</td>
+                        <td>通义千问API密钥</td>
+                    </tr>
+                    <tr>
+                        <td>QwenChatFile类</td>
+                        <td>ai_app/views.py</td>
+                        <td>处理文件对话的类</td>
+                    </tr>
+                    <tr>
+                        <td>临时文件目录</td>
+                        <td>/tmp/</td>
+                        <td>需确保目录存在且有写入权限</td>
+                    </tr>
+                </table>
+
+                <h3>请求示例</h3>
+                <pre><code>POST /QwenChatFile/
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="document.txt"
+Content-Type: text/plain
+
+[文件内容]
+--boundary
+Content-Disposition: form-data; name="question"
+
+请总结这篇文档的主要内容
+--boundary--</code></pre>
+
+                <h3>响应示例</h3>
+                <pre><code>{
+    "response": "根据文档分析，主要内容包括以下几点：\n1. ...\n2. ..."
+}</code></pre>
+            </div>
+            
+            <div class="endpoint">
+                <h3>Qwen 多轮对话接口</h3>
+                <span class="method post">POST</span>
+                <code>/QwenChatToke/</code>
+                <p>支持上下文的多轮对话接口。</p>
+                
+                <h3>请求参数</h3>
+                <table>
+                    <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必选</th>
+                        <th>描述</th>
+                    </tr>
+                    <tr>
+                        <td>content</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>用户输入内容</td>
+                    </tr>
+                    <tr>
+                        <td>model</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>模型名称，默认为"qwen2.5-1.5b-instruct"</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="endpoint">
+                <h3>Qwen OCR 图像识别接口</h3>
+                <span class="method post">POST</span>
+                <code>/QwenOCR/</code>
+                <p>图像文字识别接口。</p>
+                
+                <h3>请求参数</h3>
+                <table>
+                    <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必选</th>
+                        <th>描述</th>
+                    </tr>
+                    <tr>
+                        <td>file</td>
+                        <td>file</td>
+                        <td>是</td>
+                        <td>要识别的图片文件</td>
+                    </tr>
+                    <tr>
+                        <td>question</td>
+                        <td>string</td>
+                        <td>否</td>
+                        <td>关于图片的问题，默认为"提取所有图中文字"</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="endpoint">
+                <h3>Qwen Omni 多模态对话接口</h3>
+                <span class="method post">POST</span>
+                <code>/Qwenomni/</code>
+                
+                <h3>配置信息</h3>
+                <table>
+                    <tr>
+                        <th>配置项</th>
+                        <th>位置</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>Qwen_APIKEY</td>
+                        <td>ai_app/views.py</td>
+                        <td>通义千问API密钥</td>
+                    </tr>
+                    <tr>
+                        <td>Qwenomni类</td>
+                        <td>ai_app/views.py</td>
+                        <td>处理多模态对话的类</td>
+                    </tr>
+                </table>
+
+                <h3>请求示例 - 图片分析</h3>
+                <pre><code>POST /Qwenomni/
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="type"
+image
+--boundary
+Content-Disposition: form-data; name="file"; filename="image.jpg"
+Content-Type: image/jpeg
+
+[图片二进制数据]
+--boundary
+Content-Disposition: form-data; name="text"
+
+这张图片里有什么？
+--boundary
+Content-Disposition: form-data; name="voice"
+Cherry
+--boundary--</code></pre>
+
+                <h3>响应示例</h3>
+                <pre><code>HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+
+text:这张图片显示了一个美丽的日落场景...
+audio:base64编码的音频数据...</code></pre>
+
+                <h3>注意事项</h3>
+                <ul>
+                    <li>支持的文件类型：
+                        <ul>
+                            <li>图片：jpg, jpeg, png, gif</li>
+                            <li>音频：mp3, wav, ogg</li>
+                            <li>视频：mp4, avi, mov</li>
+                        </ul>
+                    </li>
+                    <li>文件大小限制：20MB</li>
+                    <li>音频响应需要正确处理base64解码</li>
+                </ul>
+            </div>
+            
+            <div class="endpoint">
+                <h3>Qwen Audio 音频理解接口</h3>
+                <span class="method post">POST</span>
+                <code>/QwenAudio/</code>
+                
+                <h3>配置信息</h3>
+                <table>
+                    <tr>
+                        <th>配置项</th>
+                        <th>位置</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>Qwen_APIKEY</td>
+                        <td>ai_app/views.py</td>
+                        <td>通义千问API密钥</td>
+                    </tr>
+                    <tr>
+                        <td>QwenAudio类</td>
+                        <td>ai_app/views.py</td>
+                        <td>处理音频理解的类</td>
+                    </tr>
+                    <tr>
+                        <td>dashscope配置</td>
+                        <td>ai_app/views.py</td>
+                        <td>需要正确配置dashscope库</td>
+                    </tr>
+                </table>
+
+                <h3>请求示例 - 本地文件</h3>
+                <pre><code>POST /QwenAudio/
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="audio.wav"
+Content-Type: audio/wav
+
+[音频二进制数据]
+--boundary
+Content-Disposition: form-data; name="question"
+
+这段音频在说什么？
+--boundary--</code></pre>
+
+                <h3>请求示例 - URL</h3>
+                <pre><code>POST /QwenAudio/
+Content-Type: application/x-www-form-urlencoded
+
+audio_source=https://example.com/audio.wav&question=这段音频在说什么？</code></pre>
+
+                <h3>响应示例</h3>
+                <pre><code>HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+
+text:这段音频内容是关于...</code></pre>
+
+                <h3>注意事项</h3>
+                <ul>
+                    <li>支持的音频格式：wav, mp3</li>
+                    <li>音频时长限制：10分钟</li>
+                    <li>音频采样率要求：16kHz</li>
+                    <li>支持流式响应和多轮对话</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- COZE系列 -->
+        <div id="coze" class="model-section">
+            <h2 class="model-title">COZE系列</h2>
+            
+            <div class="endpoint">
+                <h3>COZE对话接口</h3>
+                <span class="method post">POST</span>
+                <code>/CozeChat/</code>
+                <p>基于COZE的对话接口。</p>
+                
+                <h4>请求参数</h4>
+                <table>
+                    <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必选</th>
+                        <th>描述</th>
+                    </tr>
+                    <tr>
+                        <td>question</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>用户问题</td>
+                    </tr>
+                    <tr>
+                        <td>api_token</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>COZE API令牌、每30天更新一次别忘记了</td>
+                    </tr>
+                    <tr>
+                        <td>bot_id</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>智能体ID</td>
+                    </tr>
+                    <tr>
+                        <td>user_id</td>
+                        <td>string</td>
+                        <td>是</td>
+                        <td>用户ID</td>
+                    </tr>
+                </table>
+
+                <h4>请求示例</h4>
+                <pre><code>{
+    "question": "你是谁？",
+    "api_token": "your_api_token",
+    "bot_id": "your_bot_id",
+    "user_id": "your_user_id"
+}</code></pre>
+
+                <h4>响应示例</h4>
+                <pre><code>{
+    "content": "我是COZE助手...",
+    "token_count": 54
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchText = e.target.value.toLowerCase();
+            const endpoints = document.getElementsByClassName('endpoint');
+            
+            Array.from(endpoints).forEach(endpoint => {
+                const content = endpoint.textContent.toLowerCase();
+                if (content.includes(searchText)) {
+                    endpoint.classList.remove('hidden');
+                } else {
+                    endpoint.classList.add('hidden');
+                }
+            });
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
