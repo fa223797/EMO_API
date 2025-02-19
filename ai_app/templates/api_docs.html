@@ -65,23 +65,6 @@
             background-color: #f5f5f5;
         }
         
-        /* 添加搜索相关样式 */
-        .search-container {
-            margin: 20px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 5px;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-        
         /* 添加模型分类样式 */
         .model-section {
             margin: 30px 0;
@@ -176,16 +159,151 @@
             margin: 5px 0 0 0;
             color: #666;
         }
+
+        .table-container {
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        #modelTable {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        #modelTable th,
+        #modelTable td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        #modelTable th {
+            background: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .edit-btn,
+        .delete-btn {
+            padding: 6px 12px;
+            margin: 0 4px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .dialog-content {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .dialog-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .dialog-buttons button {
+            padding: 8px 16px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>AI API文档</h1>
-        
-        <!-- 搜索框 -->
-        <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="搜索API...">
+        <!-- 模型列表移到最上面 -->
+        <div class="model-section">
+            <h2 class="model-title">模型列表</h2>
+            <button class="add-btn" onclick="showAddDialog()">添加模型</button>
+            
+            <div class="table-container">
+                <table id="modelTable">
+                    <thead>
+                        <tr>
+                            <th>模型标识</th>
+                            <th>模型名称</th>
+                            <th>类型</th>
+                            <th>描述</th>
+                            <th>费用</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for model in models %}
+                        <tr data-id="{{ model.id }}">
+                            <td>{{ model.model }}</td>
+                            <td>{{ model.name }}</td>
+                            <td>{{ model.get_type_display }}</td>
+                            <td>{{ model.context }}</td>
+                            <td>{{ model.cost }}</td>
+                            <td>
+                                <button class="edit-btn" onclick="editModel('{{ model.id }}')">修改</button>
+                                <button class="delete-btn" onclick="deleteModel('{{ model.id }}')">删除</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        <h1>AI API文档</h1>
         
         <!-- 导航栏 -->
         <div class="nav-container">
@@ -1123,24 +1241,84 @@ text:这段音频内容是关于...</code></pre>
 }</code></pre>
             </div>
         </div>
+
+        <!-- 添加模型的对话框 -->
+        <div id="addDialog" class="dialog">
+            <div class="dialog-content">
+                <h3>添加新模型</h3>
+                <form id="addForm">
+                    <div class="form-group">
+                        <label>模型标识:</label>
+                        <input type="text" id="newModelIdentifier" required>
+                    </div>
+                    <div class="form-group">
+                        <label>模型名称:</label>
+                        <input type="text" id="newModelName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>类型:</label>
+                        <select id="newModelType">
+                            <option value="chat">大语言模型</option>
+                            <option value="vision">多模态模型</option>
+                            <option value="function">功能模型</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>描述:</label>
+                        <textarea id="newModelContext" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>费用:</label>
+                        <input type="text" id="newModelCost" required>
+                    </div>
+                    <div class="dialog-buttons">
+                        <button type="submit">保存</button>
+                        <button type="button" onclick="closeDialog('addDialog')">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 修改模型的对话框 -->
+        <div id="editDialog" class="dialog">
+            <div class="dialog-content">
+                <h3>修改模型信息</h3>
+                <form id="editForm">
+                    <input type="hidden" id="modelId">
+                    <div class="form-group">
+                        <label>模型标识:</label>
+                        <input type="text" id="modelIdentifier" required>
+                    </div>
+                    <div class="form-group">
+                        <label>模型名称:</label>
+                        <input type="text" id="modelName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>类型:</label>
+                        <select id="modelType">
+                            <option value="chat">大语言模型</option>
+                            <option value="vision">多模态模型</option>
+                            <option value="function">功能模型</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>描述:</label>
+                        <textarea id="modelContext" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>费用:</label>
+                        <input type="text" id="modelCost" required>
+                    </div>
+                    <div class="dialog-buttons">
+                        <button type="submit">保存</button>
+                        <button type="button" onclick="closeDialog()">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 搜索功能
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchText = e.target.value.toLowerCase();
-            const endpoints = document.getElementsByClassName('endpoint');
-            
-            Array.from(endpoints).forEach(endpoint => {
-                const content = endpoint.textContent.toLowerCase();
-                if (content.includes(searchText)) {
-                    endpoint.classList.remove('hidden');
-                } else {
-                    endpoint.classList.add('hidden');
-                }
-            });
-        });
-        
         // 平滑滚动
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -1150,6 +1328,157 @@ text:这段音频内容是关于...</code></pre>
                 });
             });
         });
+
+        function showAddDialog() {
+            document.getElementById('addDialog').style.display = 'block';
+        }
+
+        function closeDialog(dialogId) {
+            document.getElementById(dialogId).style.display = 'none';
+        }
+
+        function editModel(id) {
+            // 获取当前行数据
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            const cells = row.cells;
+            
+            // 填充表单
+            document.getElementById('modelId').value = id;
+            document.getElementById('modelIdentifier').value = cells[0].textContent;
+            document.getElementById('modelName').value = cells[1].textContent;
+            document.getElementById('modelType').value = cells[2].getAttribute('data-value');
+            document.getElementById('modelContext').value = cells[3].textContent;
+            document.getElementById('modelCost').value = cells[4].textContent;
+            
+            // 显示对话框
+            document.getElementById('editDialog').style.display = 'block';
+        }
+
+        function deleteModel(id) {
+            if (confirm('确定要删除这个模型吗？')) {
+                fetch(`/api/models/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        const row = document.querySelector(`tr[data-id="${id}"]`);
+                        row.remove();
+                    } else {
+                        alert('删除失败，请重试');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('删除失败，请重试');
+                });
+            }
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('modelId').value;
+            const data = {
+                model: document.getElementById('modelIdentifier').value,
+                name: document.getElementById('modelName').value,
+                type: document.getElementById('modelType').value,
+                context: document.getElementById('modelContext').value,
+                cost: document.getElementById('modelCost').value
+            };
+            
+            fetch(`/api/models/${id}/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 更新表格中的数据
+                const row = document.querySelector(`tr[data-id="${id}"]`);
+                const cells = row.cells;
+                cells[0].textContent = data.model;
+                cells[1].textContent = data.name;
+                cells[2].textContent = data.type_display;
+                cells[3].textContent = data.context;
+                cells[4].textContent = data.cost;
+                
+                closeDialog();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('保存失败，请重试');
+            });
+        });
+
+        // 添加新模型
+        document.getElementById('addForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const data = {
+                model: document.getElementById('newModelIdentifier').value,
+                name: document.getElementById('newModelName').value,
+                type: document.getElementById('newModelType').value,
+                context: document.getElementById('newModelContext').value,
+                cost: document.getElementById('newModelCost').value
+            };
+            
+            fetch('/api/models/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 添加新行到表格
+                const tbody = document.querySelector('#modelTable tbody');
+                const tr = document.createElement('tr');
+                tr.dataset.id = data.id;
+                tr.innerHTML = `
+                    <td>${data.model}</td>
+                    <td>${data.name}</td>
+                    <td>${data.type_display}</td>
+                    <td>${data.context}</td>
+                    <td>${data.cost}</td>
+                    <td>
+                        <button class="edit-btn" onclick="editModel('${data.id}')">修改</button>
+                        <button class="delete-btn" onclick="deleteModel('${data.id}')">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+                
+                closeDialog('addDialog');
+                document.getElementById('addForm').reset();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('添加失败，请重试');
+            });
+        });
+
+        // 获取CSRF Token的辅助函数
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
     </script>
 </body>
 </html> 

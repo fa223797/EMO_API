@@ -1,4 +1,6 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views
 from .views import (
     GLM4View, 
     GLM4VView, 
@@ -16,7 +18,12 @@ from .views import (
     AI_ALL,
 )
 
+router = DefaultRouter()
+router.register(r'models', views.ModelInfoViewSet)
+
 urlpatterns = [
+    path('api/', include(router.urls)),
+    path('api-docs/', views.api_docs, name='api_docs'),
     path('', api_docs, name='api-docs'),
     path('GLM-4/', GLM4View.as_view(), name='glm-4-api'),
     path('GLM-4V/', GLM4VView.as_view(), name='glm-4v-api'),

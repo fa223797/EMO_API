@@ -137,3 +137,31 @@ urlpatterns = [
             'PORT': '3306',
         }
     }
+    同时下面的设置里面子应用要添加到INSTALLED_APPS里面，要不相对应的数据库不会迁移也不显示表
+
+3.在app里面的models.py创建模型，然后迁移（所谓模型就是数据库的表）
+    模型样例：
+    class ModelInfo(models.Model):
+        model = models.TextField()
+        name = models.TextField()
+        type = models.TextField()
+        context = models.TextField()
+        cost = models.TextField()
+        def __str__(self):
+            return f"{self.model} - {self.name} - {self.type} - {self.context} - {self.cost}"
+    迁移：
+    python manage.py makemigrations
+    python manage.py migrate
+
+4.在admin.py里面注册模型
+    from django.contrib import admin
+    from .models import ModelInfo
+    admin.site.register(ModelInfo)
+
+5.在apps.py里面注册应用并且显示中文
+    name = 'ai_app'
+    verbose_name = "AI-应用"
+
+ # ========== 10. 使用数据库案例 ==========
+ 1、把数据库导入到docs里面，先修改views.py增删改查的方法，增加models.py的内容，然后修改docs.html
+ 2、增删改查功能，则除了views.py里面添加了新的功能，同时urls.py里面和settings.py里面也要修改

@@ -13,6 +13,8 @@ from openai import OpenAI
 from pathlib import Path
 import dashscope
 import time
+from .models import ModelInfo
+from rest_framework import viewsets
 
 
 
@@ -260,7 +262,8 @@ class AI_ALL(APIView):
 # 说明文档页面
 def api_docs(request):
     """API文档页面"""
-    return render(request, 'api_docs.html')
+    models = ModelInfo.objects.all()
+    return render(request, 'api_docs.html', {'models': models})
 
 # GLM模型
 # GLM语言模型chat类型，glm-4
@@ -912,5 +915,46 @@ class QwenAudio(APIView):
             
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
+class ModelInfoViewSet(viewsets.ModelViewSet):
+    queryset = ModelInfo.objects.all()
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.model = request.data.get('model', instance.model)
+        instance.name = request.data.get('name', instance.name)
+        instance.type = request.data.get('type', instance.type)
+        instance.context = request.data.get('context', instance.context)
+        instance.cost = request.data.get('cost', instance.cost)
+        instance.save()
+        
+        return Response({
+            'id': instance.id,
+            'model': instance.model,
+            'name': instance.name,
+            'type': instance.type,
+            'type_display': instance.get_type_display(),
+            'context': instance.context,
+            'cost': instance.cost
+        })
+
+    def create(self, request, *args, **kwargs):
+        instance = ModelInfo.objects.create(
+            model=request.data.get('model'),
+            name=request.data.get('name'),
+            type=request.data.get('type'),
+            context=request.data.get('context'),
+            cost=request.data.get('cost')
+        )
+        
+        return Response({
+            'id': instance.id,
+            'model': instance.model,
+            'name': instance.name,
+            'type': instance.type,
+            'type_display': instance.get_type_display(),
+            'context': instance.context,
+            'cost': instance.cost
+        })
 
 
