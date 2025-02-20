@@ -204,7 +204,15 @@ simpleui的配置：
 # ========== 12. 增加数据库表 ==========
 1、在models.py里面增加新的模型，包括用户管理表、资源管理表、对话存储表
 2、在admin.py里面注册模型,用@方式
-3、在apps.py里面注册应用并且显示中文
-4、在settings.py里面配置数据库
-5、在urls.py里面配置路由
+
+# ========== 13. 动态配置管理django-constance ==========
+1、pip install django-constance[database]
+2、settings.py中添加：
+    INSTALLED_APPS += ['constance']
+    CONSTANCE_CONFIG = {
+        'WECHAT_APP_ID': ('', '微信AppID'),
+        'API_TIMEOUT': (30, '接口超时时间（秒）'),
+    }
+3、admin.py里面class CustomConstanceAdmin(ConstanceAdmin)是汉化用的，下面的是对站点标题汉化设置
+4、对views.py里面的配置文件进行动态迁移
 

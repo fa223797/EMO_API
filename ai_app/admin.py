@@ -1,7 +1,46 @@
 from django.contrib import admin
 from .models import MediaResource, UserConversation, ModelInfo, CustomUser
+from constance.admin import ConstanceAdmin, Config
+from django.utils.translation import gettext_lazy as _
 
-# 使用装饰器注册模型并自定义 Admin 类
+# 自定义 Constance 的 Admin 配置
+class CustomConstanceAdmin(ConstanceAdmin):
+    def get_changelist_form(self, request, **kwargs):
+        form = super().get_changelist_form(request, **kwargs)
+        try:
+            if 'WECHAT_APP_ID' in form.base_fields:
+                form.base_fields['WECHAT_APP_ID'].label = "微信小程序 AppID"
+            if 'API_TIMEOUT' in form.base_fields:
+                form.base_fields['API_TIMEOUT'].label = "接口超时时间（秒）"
+            if 'GLM_API_KEY' in form.base_fields:
+                form.base_fields['GLM_API_KEY'].label = "智谱AI API密钥"
+            if 'COZE_API_TOKEN' in form.base_fields:
+                form.base_fields['COZE_API_TOKEN'].label = "COZE API令牌"
+            if 'COZE_BOT_ID' in form.base_fields:
+                form.base_fields['COZE_BOT_ID'].label = "COZE 机器人ID"
+            if 'QWEN_API_KEY' in form.base_fields:
+                form.base_fields['QWEN_API_KEY'].label = "通义千问 API密钥"
+            if 'DEFAULT_VOICE' in form.base_fields:
+                form.base_fields['DEFAULT_VOICE'].label = "默认语音角色"
+            if 'DEFAULT_VIDEO_SIZE' in form.base_fields:
+                form.base_fields['DEFAULT_VIDEO_SIZE'].label = "默认视频尺寸"
+            if 'DEFAULT_VIDEO_FPS' in form.base_fields:
+                form.base_fields['DEFAULT_VIDEO_FPS'].label = "默认视频帧率"
+            if 'MAX_TOKENS' in form.base_fields:
+                form.base_fields['MAX_TOKENS'].label = "最大Token数量"
+        except KeyError as e:
+            print(f"字段不存在: {e}")
+        return form
+admin.site.unregister([Config])
+admin.site.register([Config], CustomConstanceAdmin)
+
+# 修改 admin 站点标题
+admin.site.site_header = '玫云科技AI管理后台'
+admin.site.site_title = '系统管理'
+admin.site.index_title = '系统管理'
+admin.site.empty_value_display = '无数据'#空数据显示内容
+
+
 # 模型信息表
 @admin.register(ModelInfo)
 class ModelInfoAdmin(admin.ModelAdmin):

@@ -16,15 +16,17 @@ import time
 from .models import ModelInfo
 from rest_framework import viewsets
 from .serializers import ModelInfoSerializer
+from django.conf import settings
+from constance import config
 
 
 
 # 统一的API密钥配置
-API_KEY = "98fd7efde5b04a9ab8ded261b0cd54e5.iSTkJXlCzxR1rMC9"#GLM的API密钥
-COZE_API_TOKEN = 'pat_g29XD40XKp9DFbztQUVFzbbarqPceZ7jhIOGDkqeEHpcMYhL753COSdIF4xMLt6P'  # COZE的API令牌
-COZE_BOT_ID = '7471264796252487689'  # COZE的机器人ID
-COZE_BASE_URL = COZE_CN_BASE_URL  # COZE的基础URL
-Qwen_APIKEY = "sk-e820da316ff34addb3c12d4be1461e96"# Qwen的秘钥
+# API_KEY = "98fd7efde5b04a9ab8ded261b0cd54e5.iSTkJXlCzxR1rMC9"#GLM的API密钥
+# COZE_API_TOKEN = 'pat_g29XD40XKp9DFbztQUVFzbbarqPceZ7jhIOGDkqeEHpcMYhL753COSdIF4xMLt6P'  # COZE的API令牌
+# COZE_BOT_ID = '7471264796252487689'  # COZE的机器人ID
+# COZE_BASE_URL = COZE_CN_BASE_URL  # COZE的基础URL
+# Qwen_APIKEY = "sk-e820da316ff34addb3c12d4be1461e96"# Qwen的秘钥
 # 合体api
 class AI_ALL(APIView):
     def post(self, request):
@@ -34,7 +36,7 @@ class AI_ALL(APIView):
             text = request.POST.get('text', '')
             file = request.FILES.get('file') 
             url = request.POST.get('url', '')
-            voice = request.POST.get('voice', 'Cherry')
+            voice = request.POST.get('voice', config.DEFAULT_VOICE)
  
             # 参数验证 
             if not model_name:
@@ -54,16 +56,16 @@ class AI_ALL(APIView):
             # 特殊处理视频生成模型
             if 'cogvideox' in model_name:
                 try:
-                    client = ZhipuAI(api_key=API_KEY)
+                    client = ZhipuAI(api_key=config.GLM_API_KEY)
                     
                     # 构建视频生成参数
                     generation_params = {
-                        "model": model_name,  # 使用完整的模型名称
+                        "model": model_name,
                         "prompt": text,
                         "quality": "quality",
                         "with_audio": True,
-                        "size": "720x480",
-                        "fps": 30
+                        "size": config.DEFAULT_VIDEO_SIZE,
+                        "fps": config.DEFAULT_VIDEO_FPS
                     }
                     
                     # 添加图片URL（如果有）
@@ -174,7 +176,7 @@ class AI_ALL(APIView):
         """调用具体模型的API"""
         # 增加模型前缀判断
         if any([prefix in model_name for prefix in ['glm', 'cogview', 'cogvideox']]):
-            client = ZhipuAI(api_key=API_KEY)
+            client = ZhipuAI(api_key=config.GLM_API_KEY)
             return client.chat.completions.create(
                 model=model_name,
                 messages=messages,
@@ -185,7 +187,7 @@ class AI_ALL(APIView):
             # 统一处理通义系列模型
             if 'omni' in model_name:
                 client = OpenAI(
-                    api_key=Qwen_APIKEY,
+                    api_key=config.QWEN_API_KEY,
                     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
                 )
                 return client.chat.completions.create(
@@ -205,7 +207,7 @@ class AI_ALL(APIView):
                 )
             else:
                 client = OpenAI(
-                    api_key=Qwen_APIKEY,
+                    api_key=config.QWEN_API_KEY,
                     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
                 )
                 return client.chat.completions.create(
@@ -214,8 +216,11 @@ class AI_ALL(APIView):
                     stream=True
                 )
         elif 'coze' in model_name:
-            coze = Coze(auth=TokenAuth(token=COZE_API_TOKEN), base_url=COZE_BASE_URL)
-            return coze.chat.stream(bot_id=COZE_BOT_ID, user_id="default_user", additional_messages=messages)
+            coze = Coze(
+                auth=TokenAuth(token=config.COZE_API_TOKEN), 
+                base_url=COZE_BASE_URL
+            )
+            return coze.chat.stream(bot_id=config.COZE_BOT_ID, user_id="default_user", additional_messages=messages)
         else:
             raise ValueError(f"未知模型: {model_name}")
  
@@ -298,7 +303,7 @@ class GLM4View(APIView):
         
         # 构造发送到GLM API的头部信息，包括授权和内容类型
         headers = {
-            "Authorization": f"Bearer {API_KEY}",  # 使用API密钥进行身份验证
+            "Authorization": f"Bearer {config.GLM_API_KEY}",  # 使用API密钥进行身份验证
             "Content-Type": "application/json",     # 指定请求体的内容类型为JSON
         }
         
@@ -368,7 +373,7 @@ class GLM4VView(APIView):
             return Response({"error": "messages is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         headers = {
-            "Authorization": f"Bearer {API_KEY}",
+            "Authorization": f"Bearer {config.GLM_API_KEY}",
             "Content-Type": "application/json",
         }
         
@@ -402,7 +407,7 @@ class GLMCogView(APIView):
             return Response({"error": "prompt is required"}, status=status.HTTP_400_BAD_REQUEST)
             
         headers = {
-            "Authorization": f"Bearer {API_KEY}",
+            "Authorization": f"Bearer {config.GLM_API_KEY}",
             "Content-Type": "application/json",
         }
         
@@ -432,7 +437,7 @@ class CogVideoXView(APIView):
         """生成视频请求"""
         try:
             # 初始化智谱AI客户端
-            client = ZhipuAI(api_key=API_KEY)
+            client = ZhipuAI(api_key=config.GLM_API_KEY)
             
             if request.data.get('action') == 'check_status':
                 # 查询任务状态
@@ -487,7 +492,7 @@ class GLM4Voice(APIView):
         """生成语音请求"""
         try:
             # 初始化智谱AI客户端
-            client = ZhipuAI(api_key=API_KEY)
+            client = ZhipuAI(api_key=config.GLM_API_KEY)
             
             # 获取参数
             model_name = request.data.get('model', 'glm-4-voice')
@@ -561,8 +566,8 @@ class CozeChatView(APIView):
         """生成对话请求"""
         try:
             # 获取参数，api_token和bot_id使用默认配置值，但user_id必须由前端提供
-            coze_api_token = request.data.get('api_token', COZE_API_TOKEN)
-            bot_id = request.data.get('bot_id', COZE_BOT_ID)
+            coze_api_token = request.data.get('api_token', config.COZE_API_TOKEN)
+            bot_id = request.data.get('bot_id', config.COZE_BOT_ID)
             user_id = request.data.get('user_id')
             question = request.data.get('question')
             
@@ -623,7 +628,7 @@ class QwenChat(APIView):
  
         def stream_generator():
             response = Generation.call( 
-                api_key=Qwen_APIKEY,
+                api_key=config.QWEN_API_KEY,
                 model=model,  # 使用前端传入的模型
                 messages=messages,
                 result_format="message",
@@ -641,7 +646,7 @@ class QwenChatFile(APIView):
     def post(self, request):
         try:
             client = OpenAI(
-                api_key=Qwen_APIKEY,
+                api_key=config.QWEN_API_KEY,
                 base_url="https://dashscope.aliyuncs.com/compatible-mode/v1" 
             )
             
@@ -703,7 +708,7 @@ class QwenChatToke(APIView):
         messages.append({"role": "user", "content": user_input})
  
         response = Generation.call( 
-            api_key=Qwen_APIKEY,
+            api_key=config.QWEN_API_KEY,
             model=model,  # 使用前端传入的模型
             messages=messages,
             result_format="message",
@@ -729,7 +734,7 @@ class QwenOCR(APIView):
     def post(self, request):
         try:
             client = OpenAI(
-                api_key=Qwen_APIKEY,
+                api_key=config.QWEN_API_KEY,
                 base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
             )
             uploaded_file = request.FILES.get('file')
@@ -769,14 +774,14 @@ class Qwenomni(APIView):
     def post(self, request):
         try:
             client = OpenAI(
-                api_key=Qwen_APIKEY,
+                api_key=config.QWEN_API_KEY,
                 base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
             )
             
             # 获取参数
             content_type = request.POST.get('type', 'text')  # text/image/audio/video
             text = request.POST.get('text', '')
-            voice = request.POST.get('voice', 'Cherry')
+            voice = request.POST.get('voice', config.DEFAULT_VOICE)
             url = request.POST.get('url', '')  # 获取URL参数
             
             # 获取对话历史
