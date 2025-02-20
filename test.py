@@ -7,9 +7,9 @@ def connect_to_database():
         connection = mysql.connector.connect( 
             host="123.249.67.69",       # 数据库服务器地址
             port=3306,                 # 数据库端口（默认为 3306）
-            user="fa223797",           # 数据库用户名
+            user="dailyfresh",           # 数据库用户名
             password="Yd011987..",       # 数据库密码
-            database="emo"    # 要连接的数据库名称 
+            database="dailyfresh"    # 要连接的数据库名称 
         )
  
         if connection.is_connected(): 

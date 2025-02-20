@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'simpleui',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'ai_app',
 ]
+
+AUTH_USER_MODEL = 'ai_app.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -83,7 +86,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'emo',
-        'USER': 'fa223797',
+        'USER': 'emo',
         'PASSWORD': 'Yd011987..',
         'HOST': '123.249.67.69',
         'PORT': '3306',

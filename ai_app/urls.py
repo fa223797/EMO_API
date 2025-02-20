@@ -16,6 +16,7 @@ from .views import (
     Qwenomni,
     QwenAudio,
     AI_ALL,
+    ModelListView,
 )
 
 router = DefaultRouter()
@@ -23,8 +24,8 @@ router.register(r'models', views.ModelInfoViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('api-docs/', views.api_docs, name='api_docs'),
-    path('', api_docs, name='api-docs'),
+    path('api-docs/', views.api_docs, name='api_docs'),#说明文档页面
+    path('', api_docs, name='api-docs'),#说明文档页面
     path('GLM-4/', GLM4View.as_view(), name='glm-4-api'),
     path('GLM-4V/', GLM4VView.as_view(), name='glm-4v-api'),
     path('GLM-Cog/', GLMCogView.as_view(), name='glm-cog-api'),
@@ -37,5 +38,7 @@ urlpatterns = [
     path('QwenOCR/', QwenOCR.as_view(), name='qwen-ocr-api'),
     path('Qwenomni/', Qwenomni.as_view(), name='qwen-omni-api'),
     path('QwenAudio/', QwenAudio.as_view(), name='qwen-audio-api'),
-    path('AI_ALL/', AI_ALL.as_view(), name='ai-all-api'),
+    path('AI_ALL/', AI_ALL.as_view(), name='ai-all-api'),#所有模型统一化接口
+    path('ModelListView/', ModelListView.as_view(),  name='ModelListView'),#framework视图
+
 ] 

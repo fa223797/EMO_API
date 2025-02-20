@@ -15,6 +15,7 @@ import dashscope
 import time
 from .models import ModelInfo
 from rest_framework import viewsets
+from .serializers import ModelInfoSerializer
 
 
 
@@ -265,6 +266,16 @@ def api_docs(request):
     models = ModelInfo.objects.all()
     return render(request, 'api_docs.html', {'models': models})
 
+# REST framework视图
+class ModelListView(APIView):
+    def get(self, request):
+        queryset = ModelInfo.objects.all() 
+        serializer = ModelInfoSerializer(queryset, many=True)
+        return Response(serializer.data) 
+
+
+
+# 模型接口
 # GLM模型
 # GLM语言模型chat类型，glm-4
 class GLM4View(APIView):

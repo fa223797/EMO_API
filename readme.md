@@ -1,10 +1,15 @@
+# ========== 0. 项目目录 ==========
+PS D:\python代码\Django\EMO_API> tree /F
+卷   的文件夹 PATH 列表
+卷序列号为 FC60-533D
 D:.
 │  db.sqlite3
-│  EMO_API.md
 │  manage.py
+│  readme.md
+│  requirements.txt
 │  test.ipynb
 │  test.py
-│  
+│
 ├─ai_app
 │  │  admin.py
 │  │  apps.py
@@ -15,10 +20,31 @@ D:.
 │  │  __init__.py
 │  │
 │  ├─migrations
+│  │  │  0001_initial.py
+│  │  │  0002_models_delete_ai_model.py
+│  │  │  0003_rename_上下文_models_context_rename_名称_models_cost_and_more.py
+│  │  │  0004_rename_models_modelinfo.py
+│  │  │  0005_aiconfig.py
+│  │  │  0006_delete_aiconfig.py
+│  │  │  0007_alter_modelinfo_options_alter_modelinfo_context_and_more.py
+│  │  │  0008_alter_modelinfo_type.py
+│  │  │  0009_alter_modelinfo_options_alter_modelinfo_context_and_more.py
 │  │  │  __init__.py
 │  │  │
 │  │  └─__pycache__
+│  │          0001_initial.cpython-312.pyc
+│  │          0002_models_delete_ai_model.cpython-312.pyc
+│  │          0003_rename_上下文_models_context_rename_名称_models_cost_and_more.cpython-312.pyc
+│  │          0004_rename_models_modelinfo.cpython-312.pyc
+│  │          0005_aiconfig.cpython-312.pyc
+│  │          0006_delete_aiconfig.cpython-312.pyc
+│  │          0007_alter_modelinfo_options_alter_modelinfo_context_and_more.cpython-312.pyc
+│  │          0008_alter_modelinfo_type.cpython-312.pyc
+│  │          0009_alter_modelinfo_options_alter_modelinfo_context_and_more.cpython-312.pyc
 │  │          __init__.cpython-312.pyc
+│  │
+│  ├─templates
+│  │      api_docs.html
 │  │
 │  └─__pycache__
 │          admin.cpython-312.pyc
@@ -123,8 +149,8 @@ urlpatterns = [
     首先一定是8.0以上的mysql（我现在的操作系统是almalinux9.0）
     然后在宝塔里面安装mysql以及phpmyadmin,这两个设置的时候数据库要选择对所有人，phpmyadmin要白版选择安装
     如果不改动则MySQL会选择3306端口，phpmyadmin选择的是80端口
-    一定要回到服务器里面去修改安全组，放行3306端口（Sys-WebServer安全组里面的出入方向都添加，TCP，3306，0.0.0.0/0）
-    如果想检查宝塔的虚拟环境则vscode连接ssl：root@123.249.67.69；然后进入cd /www/server/panel下后source pyenv/bin/activate激活虚拟环境deactivate退出虚拟环境
+    一定要回到服务器里面去修改安全组，放行3306端口（Sys-WebServer安全组里面的出入方向都添加，TCP，3306，0.0.0.0/0）；多个数据库都是一样的3306端口
+    如果想检查宝塔的虚拟环境则vscode连接ssl：root@123.249.67.69；然后进入cd /www/server/panel下后source pyenv/bin/activate激活虚拟环境deactivate退出虚拟环境;
 2、
  config/settings.py里面修改数据库
     DATABASES = {
@@ -162,6 +188,23 @@ urlpatterns = [
     name = 'ai_app'
     verbose_name = "AI-应用"
 
- # ========== 10. 使用数据库案例 ==========
+# ========== 10. 使用数据库案例 ==========
  1、把数据库导入到docs里面，先修改views.py增删改查的方法，增加models.py的内容，然后修改docs.html
  2、增删改查功能，则除了views.py里面添加了新的功能，同时urls.py里面和settings.py里面也要修改
+
+# ========== 11. 搭建基础框架simpleui ==========
+simpleui的配置：
+1、安装依赖：pip install django-simpleui
+2、添加应用：settings.py里面INSTALLED_APPS = ['simpleui',]
+增加REST framework的视图及关系
+3、手动添加serializers.py文件，文件内容参考文件，主要功能是序列化模型成为json格式
+4、更新视图views.py，添加ModelInfoViewSet视图，用于管理模型信息；class ModelListView(APIView)，用于后台基础看框架
+5、配置路由path('ModelListView/', ModelListView.as_view(),  name='ModelListView'),#framework视图
+
+# ========== 12. 增加数据库表 ==========
+1、在models.py里面增加新的模型，包括用户管理表、资源管理表、对话存储表
+2、在admin.py里面注册模型,用@方式
+3、在apps.py里面注册应用并且显示中文
+4、在settings.py里面配置数据库
+5、在urls.py里面配置路由
+
