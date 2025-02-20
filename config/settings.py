@@ -22,7 +22,13 @@ SECRET_KEY = 'django-insecure-+c8^4h8l%w)tw##stki5sqbr*^8x*b0-klk8xdl#fqd&+im7r-
 # 安全警告：不要在生产环境中开启调试模式！
 DEBUG = True
 
-ALLOWED_HOSTS = []  # 允许访问的主机列表
+ALLOWED_HOSTS = ['123.249.67.69', 'localhost', '127.0.0.1']
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://123.249.67.69:8000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000'
+]
 
 # 应用定义
 INSTALLED_APPS = [
@@ -111,9 +117,21 @@ TIME_ZONE = 'Asia/Shanghai'  # 时区：上海
 USE_I18N = True  # 启用国际化
 USE_TZ = True  # 启用时区支持
 
-# 静态文件（CSS、JavaScript、图片）
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-STATIC_URL = 'static/'  # 静态文件URL前缀
+# 媒体文件配置
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# 确保上传目录存在
+UPLOAD_ROOT = os.path.join(MEDIA_ROOT, 'uploads')
+if not os.path.exists(UPLOAD_ROOT):
+    os.makedirs(UPLOAD_ROOT)
+
+# 静态文件配置
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # 默认主键字段类型
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -143,3 +161,5 @@ CONSTANCE_CONFIG_FIELDSETS = {
     '微信配置': ['WECHAT_APP_ID'],
 }
 
+# 配置文件本地存储
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'

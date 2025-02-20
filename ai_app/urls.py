@@ -17,7 +17,10 @@ from .views import (
     QwenAudio,
     AI_ALL,
     ModelListView,
+    FileUploadView,
 )
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r'models', views.ModelInfoViewSet)
@@ -40,5 +43,8 @@ urlpatterns = [
     path('QwenAudio/', QwenAudio.as_view(), name='qwen-audio-api'),
     path('AI_ALL/', AI_ALL.as_view(), name='ai-all-api'),#所有模型统一化接口
     path('ModelListView/', ModelListView.as_view(),  name='ModelListView'),#framework视图
+    path('upload/', FileUploadView.as_view(), name='file-upload'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # 添加媒体文件服务
 
-] 
+router = DefaultRouter()
+router.register(r'models', views.ModelInfoViewSet) 

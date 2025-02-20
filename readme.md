@@ -205,7 +205,7 @@ simpleui的配置：
 1、在models.py里面增加新的模型，包括用户管理表、资源管理表、对话存储表
 2、在admin.py里面注册模型,用@方式
 
-# ========== 13. 动态配置管理django-constance ==========
+# ========== 13. 动态配置参数管理django-constance ==========
 1、pip install django-constance[database]
 2、settings.py中添加：
     INSTALLED_APPS += ['constance']
@@ -216,3 +216,20 @@ simpleui的配置：
 3、admin.py里面class CustomConstanceAdmin(ConstanceAdmin)是汉化用的，下面的是对站点标题汉化设置
 4、对views.py里面的配置文件进行动态迁移
 
+# ========== 14. 文件存储 ==========
+1、安装依赖：pip install django-storages
+   在views.py里面有上传接口，admin里面有“文件上传列表”
+2、使用方法
+    上传文件：
+    POST /api/upload/
+    Content-Type: multipart/form-data
+    file: <文件数据>
+    获取文件列表：
+    GET /api/upload/
+3、修改完迁移数据库和静态文件收集
+    python manage.py makemigrations
+    python manage.py migrate
+    python manage.py collectstatic
+4、media是上传文件的目录
+5、static\admin\js\file_admin.js是上传页面的js文件，可以修改
+6、staticfiles 文件夹说明：这是Django用来收集所有静态文件的目录

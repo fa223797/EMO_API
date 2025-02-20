@@ -13,11 +13,13 @@ from openai import OpenAI
 from pathlib import Path
 import dashscope
 import time
-from .models import ModelInfo
+from .models import ModelInfo, UploadedFile
 from rest_framework import viewsets
 from .serializers import ModelInfoSerializer
 from django.conf import settings
 from constance import config
+import mimetypes
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 
@@ -265,19 +267,124 @@ class AI_ALL(APIView):
         elif hasattr(chunk.choices[0].delta, "audio"):
             return {"type": "audio", "data": chunk.choices[0].delta.audio['data']}
         return None
-# 说明文档页面
+
+# 后台功能类模块
+# # 说明文档页面
 def api_docs(request):
     """API文档页面"""
     models = ModelInfo.objects.all()
     return render(request, 'api_docs.html', {'models': models})
-
 # REST framework视图
 class ModelListView(APIView):
     def get(self, request):
         queryset = ModelInfo.objects.all() 
         serializer = ModelInfoSerializer(queryset, many=True)
         return Response(serializer.data) 
+# 模型管理
+class ModelInfoViewSet(viewsets.ModelViewSet):
+    queryset = ModelInfo.objects.all()
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.model = request.data.get('model', instance.model)
+        instance.name = request.data.get('name', instance.name)
+        instance.type = request.data.get('type', instance.type)
+        instance.context = request.data.get('context', instance.context)
+        instance.cost = request.data.get('cost', instance.cost)
+        instance.save()
+        
+        return Response({
+            'id': instance.id,
+            'model': instance.model,
+            'name': instance.name,
+            'type': instance.type,
+            'type_display': instance.get_type_display(),
+            'context': instance.context,
+            'cost': instance.cost
+        })
 
+    def create(self, request, *args, **kwargs):
+        instance = ModelInfo.objects.create(
+            model=request.data.get('model'),
+            name=request.data.get('name'),
+            type=request.data.get('type'),
+            context=request.data.get('context'),
+            cost=request.data.get('cost')
+        )
+        
+        return Response({
+            'id': instance.id,
+            'model': instance.model,
+            'name': instance.name,
+            'type': instance.type,
+            'type_display': instance.get_type_display(),
+            'context': instance.context,
+            'cost': instance.cost
+        })
+# 媒体资料管理
+class FileUploadView(APIView):
+    """文件上传接口"""
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request):
+        try:
+            print("认证状态:", request.user.is_authenticated)
+            print("当前用户:", request.user)
+            print("请求头:", request.headers)
+            
+            if not request.user.is_authenticated:
+                return Response({"error": "请先登录"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+            file = request.FILES.get('file')
+            if not file:
+                return Response({"error": "没有文件被上传"}, status=status.HTTP_400_BAD_REQUEST)
+
+            mime_type, _ = mimetypes.guess_type(file.name)
+            if not mime_type:
+                mime_type = 'application/octet-stream'
+
+            uploaded_file = UploadedFile(
+                file=file,
+                file_name=file.name,
+                mime_type=mime_type,
+                file_size=file.size,
+                uploader=request.user
+            )
+            uploaded_file.save()
+
+            return Response({
+                "message": "文件上传成功",
+                "file_info": {
+                    "id": uploaded_file.id,
+                    "name": uploaded_file.file_name,
+                    "type": uploaded_file.file_type,
+                    "size": uploaded_file.file_size,
+                    "mime_type": uploaded_file.mime_type,
+                    "url": request.build_absolute_uri(uploaded_file.file.url)
+                }
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get(self, request):
+        """获取文件列表"""
+        try:
+            files = UploadedFile.objects.filter(uploader=request.user)
+            file_list = [{
+                "id": f.id,
+                "name": f.file_name,
+                "type": f.file_type,
+                "size": f.file_size,
+                "mime_type": f.mime_type,
+                "upload_time": f.upload_time,
+                "url": request.build_absolute_uri(f.file.url)
+            } for f in files]
+            
+            return Response(file_list, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # 模型接口
@@ -931,46 +1038,3 @@ class QwenAudio(APIView):
             
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-
-class ModelInfoViewSet(viewsets.ModelViewSet):
-    queryset = ModelInfo.objects.all()
-    
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.model = request.data.get('model', instance.model)
-        instance.name = request.data.get('name', instance.name)
-        instance.type = request.data.get('type', instance.type)
-        instance.context = request.data.get('context', instance.context)
-        instance.cost = request.data.get('cost', instance.cost)
-        instance.save()
-        
-        return Response({
-            'id': instance.id,
-            'model': instance.model,
-            'name': instance.name,
-            'type': instance.type,
-            'type_display': instance.get_type_display(),
-            'context': instance.context,
-            'cost': instance.cost
-        })
-
-    def create(self, request, *args, **kwargs):
-        instance = ModelInfo.objects.create(
-            model=request.data.get('model'),
-            name=request.data.get('name'),
-            type=request.data.get('type'),
-            context=request.data.get('context'),
-            cost=request.data.get('cost')
-        )
-        
-        return Response({
-            'id': instance.id,
-            'model': instance.model,
-            'name': instance.name,
-            'type': instance.type,
-            'type_display': instance.get_type_display(),
-            'context': instance.context,
-            'cost': instance.cost
-        })
-
-
